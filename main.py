@@ -16,9 +16,14 @@ class Item:
 
 
 def get_shop():
+    # amount left, (scraps, %), (upgrade scraps, upgrade %)
     return [
         Item("Stickers", 40,
              (8, 79), (1, 4)),
+        Item("Daydream shirt", 13,
+             (43, 61), (10, 8)),
+        Item("applefork.mp4.mp3.mp3 cd", 10,
+             (33, 50), (11, 10)),
     ]
 
 def print_screen(shop):
@@ -28,16 +33,16 @@ def print_screen(shop):
 
     cols = []
     tmp = []
-    wid = 0
-    mxwid = size.columns-1
+    hei = 1
+    mxhei = size.lines
     for it in strs:
-        w = max(len(j) for j in it)+3
-        if wid + w > mxwid:
-            wid = w
+        h = len(it)
+        if hei + h > mxhei:
+            hei = h+1
             if tmp: cols.append(tmp)
             tmp = [it]
         else:
-            wid += w
+            hei += h + 1
             tmp.append(it)
     if tmp: cols.append(tmp)
 
@@ -56,17 +61,17 @@ def print_screen(shop):
                 if len(c) <= i:
                     print("│"+" "*colwids[idx], end='')
                 else:
-                    txt = c[idx][j]
+                    txt = c[i][j]
                     spaces = colwids[idx] - len(txt)
                     prevspaces = math.floor(spaces/2)
                     print("│"+" "*prevspaces+txt+" "*(spaces-prevspaces), end='')
             print("│")
 
         if i < mxrows-1:
-            print("│", end='')
+            print("├", end='')
             for cw in colwids[:-1]:
                 print("─"*cw+"┼", end='')
-            print("─"*colwids[-1]+"│")
+            print("─"*colwids[-1]+"┤")
 
     print("╰", end='')
     for cw in colwids[:-1]:
