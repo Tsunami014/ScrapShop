@@ -10,7 +10,9 @@ CACHE = "cache.json" # str file path or None
 SIDEBAR_WIDTH = 1/3 # Ratio for the sidebar width compared to the screen width
 COIN = "⧖"
 
-_reg = re.compile("\033[[0-9;]+.")
+_reg = re.compile("\033\\[[0-9;]+.")
+def stripAnsi(txt):
+    return re.sub(_reg, "", txt)
 def strlen(txt):
     return len(re.sub(_reg, "", txt))
 
@@ -27,8 +29,8 @@ class Item:
     def probability(self):
         return self['baseProbability']
 
-    def __repr__(self): return self.title()
-    def __str__(self): return self.title()
+    def __repr__(self): return str(self)
+    def __str__(self): return stripAnsi(self.title())
     def title(self):
         tit = [f"{self['name'].capitalize()} x{self['count']}",
             f"{self.probability}% {self['heartCount']}♥"#" {COIN}{self['baseProbability']}"
@@ -47,8 +49,10 @@ class Item:
         if self['count'] == 0:
             return "Sold out\n\n"+\
                 f"{self['description'].capitalize()}"
-        return f"{self['name'].capitalize()} ({self['category']})\n\n"+\
-            f"Only {self['count']} left, {self['heartCount']} ppl hearted\n\n"+\
+        return f"{self['name'].capitalize()} ({self['category']})\n"+\
+            f"Only {self['count']} left, {self['heartCount']} ppl hearted\n"+\
+            f"Next upgrade: {COIN}{self['nextUpgradeCost']} (+{self['boostAmount']}%)\n"+\
+            "\n"+\
             f"{self['description'].capitalize()}"
 
 
