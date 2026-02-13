@@ -6,6 +6,8 @@ import json
 import os
 
 CACHE = "cache.json" # str file path or None
+SIDEBAR_WIDTH = 1/3 # Ratio for the sidebar width compared to the screen width
+COIN = "⧖"
 
 class Item:
     def __init__(self, dat):
@@ -16,9 +18,16 @@ class Item:
     def __getitem__(self, it):
         return self.data[it]
 
-    def __repr__(self): return str(self)
-    def __str__(self):
-        return f"{self['name']}\n{self['count']}"
+    def __repr__(self): return self.title()
+    def __str__(self): return self.title()
+    def title(self):
+        return f"{self['name'].capitalize()} x{self['count']}\n{COIN}{self['baseProbability']}"
+    def desc(self):
+        if self['count'] == 0:
+            return "Sold out"
+        return f"{self['name'].capitalize()}\n\n"+\
+            f"Only {self['count']} left, {self['heartCount']} hearts\n\n"+\
+            f"{self['description'].capitalize()}"
 
 
 def get_shop():
@@ -35,14 +44,35 @@ def get_shop():
                 json.dump(dat, f)
     return [Item(d) for d in dat]
 
-def print_screen(shop, sel):
+def iterSidebar(sidebar: str, max_width):
+    mxwid = max_width-2
+    i = 0
+    while i < len(sidebar):
+        end = sidebar.find("\n", i, i+mxwid)
+        found = end != -1
+        if not found:
+            end = i+mxwid
+        yield " \033[100m"+sidebar[i:end].ljust(mxwid)+"\033[0m "
+        if found:
+            i = end+1
+        else:
+            i = end
+    spaces = " \033[100m" + " "*mxwid + "\033[0m "
+    while True:
+        yield spaces
+
+def print_screen(shop, sel, sidebar):
     print("\033[2J\033[0;0H", end="")
     size = shutil.get_terminal_size()
-    strs = [str(i).split("\n") for i in shop]
+    strs = [i.title().split("\n") for i in shop]
 
     itwids = [max(len(j) for j in i)+2 for i in strs]
     mostwid = max(itwids)
-    colamnt = math.floor((size.columns-1) / mostwid)
+    sbwidth = round(size.columns * SIDEBAR_WIDTH)
+    colamnt = math.floor((size.columns-1-sbwidth) / mostwid)
+    if colamnt <= 0:
+        print("Screen too small")
+        return 1
     cols = [
         [] for _ in range(colamnt)
     ]
@@ -56,7 +86,7 @@ def print_screen(shop, sel):
     mxhei = size.lines-1
     startrow = math.floor(sel / colamnt)
     lastrow = 0
-    lrhei = 0
+    lrhei = 1
     for r in rowheis[::-1]:
         if lrhei + r + 1 > mxhei:
             break
@@ -65,13 +95,16 @@ def print_screen(shop, sel):
     viewstartrow = min(startrow, mxrows - lastrow)
 
     rowamnt = 0
-    rowhei = 0
+    rowhei = 1
     for r in rowheis[viewstartrow:]:
         if rowhei + r + 1 > mxhei:
             break
         rowhei += r + 1
         rowamnt += 1
     
+    sbiter = iterSidebar(sidebar, sbwidth)
+    sbspaces = " "*sbwidth
+    print(sbspaces, end="")
     print("╭", end='')
     for cw in colwids[:-1]:
         print("─"*cw+"┬", end='')
@@ -80,6 +113,7 @@ def print_screen(shop, sel):
     start, end = viewstartrow, viewstartrow+rowamnt
     for i in range(start, end):
         for j in range(rowheis[i]):
+            print(next(sbiter), end="")
             for idx, c in enumerate(cols):
                 hl = "7" if i*colamnt+idx == sel else "0"
                 if len(c) <= i or len(c[i]) <= j:
@@ -92,22 +126,33 @@ def print_screen(shop, sel):
             print("│")
 
         if i < end-1:
+            print(next(sbiter), end="")
             print("├", end='')
             for cw in colwids[:-1]:
                 print("─"*cw+"┼", end='')
             print("─"*colwids[-1]+"┤")
 
+    moreRows = mxhei - rowhei
+    if moreRows < 0:
+        print(sbspaces, end='')
+    else:
+        print(next(sbiter), end="")
+
     print("╰", end='')
     for cw in colwids[:-1]:
         print("─"*cw+"┴", end='')
-    print("─"*colwids[-1]+"╯", end='\033[0;0H', flush=True)
+    print("─"*colwids[-1]+"╯", end="")
+
+    for _ in range(moreRows):
+        print("\n"+next(sbiter), end="")
+    print(end='\033[0;0H', flush=True)
 
     return colamnt
 
 shop = get_shop()
 item = 0
 while True:
-    cols = print_screen(shop, item)
+    cols = print_screen(shop, item, shop[item].desc())
     try:
         k = readchar.readkey()
     except (KeyboardInterrupt, EOFError):
