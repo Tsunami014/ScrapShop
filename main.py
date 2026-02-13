@@ -103,6 +103,7 @@ def print_screen(shop, sel, sidebar):
     colwids = [max(itwids[c::colamnt]) for c in range(colamnt)]
     mxrows = max(len(c) for c in cols)
     rowheis = [max(len(c[i]) for c in cols if i < len(c)) for i in range(mxrows)]
+    sbwidth = size.columns - sum(i+1 for i in colwids) - 2
 
     mxhei = size.lines-1
     startrow = math.floor(sel / colamnt)
