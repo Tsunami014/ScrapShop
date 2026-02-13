@@ -189,7 +189,14 @@ def print_screen(shop, sel, sidebar):
         for j in range(rowheis[i]):
             print(next(sbiter), end="")
             for idx, c in enumerate(cols):
-                hl = "7" if i*colamnt+idx == sel else "0"
+                trueidx = i*colamnt+idx
+                if trueidx == sel:
+                    hl = "7"
+                else:
+                    hl = "0"
+                item = shop[trueidx]
+                if item.want:
+                    hl += ";100;36"
                 prefix = f"\033[{hl}m"
                 if len(c) <= i or len(c[i]) <= j:
                     print("│"+prefix+" "*colwids[idx], end='\033[0m')
@@ -197,7 +204,7 @@ def print_screen(shop, sel, sidebar):
                     txt = c[i][j]
                     spaces = colwids[idx] - strlen(txt)
                     prevspaces = math.floor(spaces/2)
-                    print("│"+prefix+" "*prevspaces+txt+"\033[0m"+prefix+" "*(spaces-prevspaces), end='\033[0m')
+                    print("│"+prefix+" "*prevspaces+"\033[39m"+txt+"\033[0m"+prefix+" "*(spaces-prevspaces), end='\033[0m')
             print("│")
 
         if i < end-1:
@@ -224,21 +231,34 @@ def print_screen(shop, sel, sidebar):
 
     return colamnt
 
-shop = get_shop()
-item = 0
-while True:
-    cols = print_screen(shop, item, shop[item].desc())
-    try:
-        k = readchar.readkey()
-    except (KeyboardInterrupt, EOFError):
-        print("\033[2J", end="", flush=True)
-        break
-    if k == readchar.key.UP:
-        item -= cols
-    if k == readchar.key.DOWN:
-        item += cols
-    if k == readchar.key.LEFT:
-        item -= 1
-    if k == readchar.key.RIGHT:
-        item += 1
+def choose(shop):
+    item = 0
+    while True:
+        it = shop[item]
+        if it.want:
+            wants = [i for i in shop if i.want]
+            desc = f"Wanting {len(wants)} items:\n" + "\n".join("- "+i.name for i in wants)
+        else:
+            desc = it.desc()
+        cols = print_screen(shop, item, desc)
+        try:
+            k = readchar.readkey()
+        except (KeyboardInterrupt, EOFError):
+            print("\033[2J", end="", flush=True)
+            break
+        if k == " ":
+            it.want = not it.want
+        if k == readchar.key.UP:
+            item -= cols
+        if k == readchar.key.DOWN:
+            item += cols
+        if k == readchar.key.LEFT:
+            item -= 1
+        if k == readchar.key.RIGHT:
+            item += 1
     item = max(min(item, len(shop)-1), 0)
+
+
+if __name__ == '__main__':
+    shop = get_shop()
+    choose(shop)
