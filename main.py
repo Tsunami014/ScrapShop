@@ -4,10 +4,15 @@ import shutil
 import math
 import json
 import os
+import re
 
 CACHE = "cache.json" # str file path or None
 SIDEBAR_WIDTH = 1/3 # Ratio for the sidebar width compared to the screen width
 COIN = "⧖"
+
+_reg = re.compile("\033[[0-9;]+.")
+def strlen(txt):
+    return len(re.sub(_reg, "", txt))
 
 class Item:
     def __init__(self, dat):
@@ -18,15 +23,31 @@ class Item:
     def __getitem__(self, it):
         return self.data[it]
 
+    @property
+    def probability(self):
+        return self['baseProbability']
+
     def __repr__(self): return self.title()
     def __str__(self): return self.title()
     def title(self):
-        return f"{self['name'].capitalize()} x{self['count']}\n{COIN}{self['baseProbability']}"
+        tit = [f"{self['name'].capitalize()} x{self['count']}",
+            f"{self.probability}% {self['heartCount']}♥"#" {COIN}{self['baseProbability']}"
+        ]
+        col = self.titleCol()
+        return "\n".join(f"\033[{col}m{i}\033[39m" for i in tit)
+    def titleCol(self):
+        if self['count'] == 0:
+            return "90"
+        if self.probability >= 70:
+            return "92"
+        if self.probability >= 40:
+            return "93"
+        return "91"
     def desc(self):
         if self['count'] == 0:
             return "Sold out"
-        return f"{self['name'].capitalize()}\n\n"+\
-            f"Only {self['count']} left, {self['heartCount']} hearts\n\n"+\
+        return f"{self['name'].capitalize()} ({self['category']})\n\n"+\
+            f"Only {self['count']} left, {self['heartCount']} ppl hearted\n\n"+\
             f"{self['description'].capitalize()}"
 
 
@@ -66,7 +87,7 @@ def print_screen(shop, sel, sidebar):
     size = shutil.get_terminal_size()
     strs = [i.title().split("\n") for i in shop]
 
-    itwids = [max(len(j) for j in i)+2 for i in strs]
+    itwids = [max(strlen(j) for j in i)+2 for i in strs]
     mostwid = max(itwids)
     sbwidth = round(size.columns * SIDEBAR_WIDTH)
     colamnt = math.floor((size.columns-1-sbwidth) / mostwid)
@@ -120,7 +141,7 @@ def print_screen(shop, sel, sidebar):
                     print(f"│\033[{hl}m"+" "*colwids[idx], end='\033[0m')
                 else:
                     txt = c[i][j]
-                    spaces = colwids[idx] - len(txt)
+                    spaces = colwids[idx] - strlen(txt)
                     prevspaces = math.floor(spaces/2)
                     print(f"│\033[{hl}m"+" "*prevspaces+txt+" "*(spaces-prevspaces), end='\033[0m')
             print("│")
