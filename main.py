@@ -29,12 +29,22 @@ class Item:
     def probability(self):
         return self['baseProbability']
 
+    def sort(self):
+        return (self['count'] == 0, -self.probability)
+
     def __repr__(self): return str(self)
     def __str__(self): return stripAnsi(self.title())
     def title(self):
-        tit = [f"{self['name'].capitalize()} x{self['count']}",
-            f"{self.probability}% {self['heartCount']}♥"#" {COIN}{self['baseProbability']}"
-        ]
+        if self['count'] == 0:
+            tit = [
+                self['name'].capitalize(),
+                "Sold out"
+            ]
+        else:
+            tit = [
+                f"{self['name'].capitalize()} x{self['count']}",
+                f"{self.probability}% {self['heartCount']}♥"#" {COIN}{self['baseProbability']}"
+            ]
         col = self.titleCol()
         return "\n".join(f"\033[{col}m{i}\033[39m" for i in tit)
     def titleCol(self):
@@ -68,7 +78,9 @@ def get_shop():
         if CACHE:
             with open(CACHE, "w+") as f:
                 json.dump(dat, f)
-    return [Item(d) for d in dat]
+    li = [Item(d) for d in dat]
+    li.sort(key=lambda it: it.sort())
+    return li
 
 def iterSidebar(sidebar: str, max_width):
     mxwid = max_width-2
