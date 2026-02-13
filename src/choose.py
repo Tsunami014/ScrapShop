@@ -1,6 +1,5 @@
 from . import inp, SHOP
-from .shop import strlen
-from .utils import itertxt
+from .utils import itertxt, strlen
 import shutil
 import math
 

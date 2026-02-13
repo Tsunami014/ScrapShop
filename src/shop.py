@@ -1,16 +1,9 @@
 import requests
 import json
 import os
-import re
 
 CACHE = "cache.json" # str file path or None
 COIN = "⧖"
-
-_reg = re.compile("\033\\[[0-9;]+.")
-def stripAnsi(txt):
-    return re.sub(_reg, "", txt)
-def strlen(txt):
-    return len(re.sub(_reg, "", txt))
 
 class Item:
     def __init__(self, dat):
@@ -83,9 +76,9 @@ class Item:
         if self.soldout:
             return "Sold out\n\n"+\
                 f"{self._desc}"
-        return f"{self.name} ({self.category})\n"+\
-            f"Only {self.count} left, {self.heart} ppl hearted\n"+\
-            f"Next upgrade: {COIN}{self.upgrCost} (+{self.upgrProb}%)\n"+\
+        return f"\033[93;1m{self.name}\033[22;93m ({self.category})\n"+\
+            f"\033[91mOnly {self.count} left, {self.heart} ppl hearted\n"+\
+            f"\033[91mNext upgrade: {COIN}{self.upgrCost} (+{self.upgrProb}%)\n"+\
             "\n"+\
             f"{self._desc}"
 
