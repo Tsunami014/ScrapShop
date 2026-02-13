@@ -45,7 +45,8 @@ class Item:
         return "91"
     def desc(self):
         if self['count'] == 0:
-            return "Sold out"
+            return "Sold out\n\n"+\
+                f"{self['description'].capitalize()}"
         return f"{self['name'].capitalize()} ({self['category']})\n\n"+\
             f"Only {self['count']} left, {self['heartCount']} ppl hearted\n\n"+\
             f"{self['description'].capitalize()}"
@@ -68,11 +69,18 @@ def get_shop():
 def iterSidebar(sidebar: str, max_width):
     mxwid = max_width-2
     i = 0
-    while i < len(sidebar):
+    ln = len(sidebar)
+    while i < ln:
         end = sidebar.find("\n", i, i+mxwid)
         found = end != -1
         if not found:
-            end = i+mxwid
+            if i+mxwid >= ln:
+                end = ln
+            else:
+                end = sidebar.rfind(" ", i, i+mxwid)
+                found = end != -1
+                if not found:
+                    end = i+mxwid
         yield " \033[100m"+sidebar[i:end].ljust(mxwid)+"\033[0m "
         if found:
             i = end+1
