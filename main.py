@@ -1,5 +1,5 @@
-from src import get_shop, choose
+from src import get_help
 
 if __name__ == '__main__':
-    shop = get_shop()
-    choose(shop)
+    get_help()
+    print("\033[2J\033[0;0H", end="", flush=True)

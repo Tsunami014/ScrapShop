@@ -1,5 +1,5 @@
+from . import inp, SHOP
 from .shop import strlen
-import readchar
 import shutil
 import math
 
@@ -29,10 +29,10 @@ def iterSidebar(sidebar: str, max_width):
     while True:
         yield spaces
 
-def print_screen(shop, sel, sidebar):
+def print_screen(sel, sidebar):
     print("\033[2J\033[0;0H", end="")
     size = shutil.get_terminal_size()
-    strs = [i.title().split("\n") for i in shop]
+    strs = [i.title().split("\n") for i in SHOP]
 
     itwids = [max(strlen(j) for j in i)+2 for i in strs]
     mostwid = max(itwids)
@@ -89,7 +89,7 @@ def print_screen(shop, sel, sidebar):
                     hl = "7"
                 else:
                     hl = "0"
-                item = shop[trueidx]
+                item = SHOP[trueidx]
                 if item.want:
                     hl += ";100;36"
                 prefix = f"\033[{hl}m"
@@ -126,30 +126,28 @@ def print_screen(shop, sel, sidebar):
 
     return colamnt
 
-def choose(shop):
+def choose():
     item = 0
     while True:
-        it = shop[item]
+        it = SHOP[item]
         if it.want:
-            wants = [i for i in shop if i.want]
+            wants = [i for i in SHOP if i.want]
             desc = f"Wanting {len(wants)} items:\n" + "\n".join("- "+i.name for i in wants)
         else:
             desc = it.desc()
-        cols = print_screen(shop, item, desc)
-        try:
-            k = readchar.readkey()
-        except (KeyboardInterrupt, EOFError):
-            print("\033[2J", end="", flush=True)
-            break
+        cols = print_screen(item, desc)
+        k = inp.read()
+        if k is None:
+            return
         if k == " ":
             it.want = not it.want
-        if k == readchar.key.UP:
+        if k == inp.key.UP:
             item -= cols
-        if k == readchar.key.DOWN:
+        if k == inp.key.DOWN:
             item += cols
-        if k == readchar.key.LEFT:
+        if k == inp.key.LEFT:
             item -= 1
-        if k == readchar.key.RIGHT:
+        if k == inp.key.RIGHT:
             item += 1
-    item = max(min(item, len(shop)-1), 0)
+        item = max(min(item, len(SHOP)-1), 0)
 

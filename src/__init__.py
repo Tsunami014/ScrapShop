@@ -1,3 +1,4 @@
 from .shop import get_shop
+from .help import get_help
 
-from .choose import choose
+SHOP = get_shop()
