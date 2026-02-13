@@ -21,42 +21,58 @@ class Item:
         self.data = dat
         self.got = 0
         self.want = [0, 0]
+        self.score = 0
+        self.title = self.make_title()
+
+    def make_title(self):
+        if self.soldout:
+            return f"\033[90m{self['name'].capitalize()}\n\033[90mSold out"
+
+        # cols - 0 good, 1 warn, 2 bad
+        def convColour(col):
+            return \
+                "92" if col < 1 else \
+                "93" if col < 2 else \
+                "91"
+        count = self['count']
+        countnorm = max((20-count)/5, 0)
+        prob = self.probability
+        probnorm = (100-prob)/30
+        heart = self['heartCount']
+        heartnorm = heart/7
+        coin = self.cost
+        coinnorm = coin/12
+        allcols = [countnorm, probnorm, heartnorm, coinnorm]
+        self.score = sum(min(i, 3) for i in allcols)/len(allcols) - 0.3
+        return (
+            f"\033[{convColour(self.score)}m{self['name'].capitalize()} "
+            f"\033[1;{convColour(countnorm)}mx{count}\n"
+
+            f"\033[1;{convColour(probnorm)}m{prob}% "
+            f"\033[1;{convColour(heartnorm)}m{heart}♥ "
+            f"\033[1;{convColour(coinnorm)}m{COIN}{coin}"
+        )
 
     def __getitem__(self, it):
         return self.data[it]
 
     @property
     def probability(self):
-        return self['baseProbability']
+        return self['effectiveProbability']
+    @property
+    def cost(self):
+        return max(1, round(self['price'] * (self['baseProbability'] / 100)))
+    @property
+    def soldout(self):
+        return self['count'] == 0
 
     def sort(self):
-        return (self['count'] == 0, -self.probability)
+        return (self.soldout, self.score, -self.probability)
 
     def __repr__(self): return str(self)
-    def __str__(self): return stripAnsi(self.title())
-    def title(self):
-        if self['count'] == 0:
-            tit = [
-                self['name'].capitalize(),
-                "Sold out"
-            ]
-        else:
-            tit = [
-                f"{self['name'].capitalize()} x{self['count']}",
-                f"{self.probability}% {self['heartCount']}♥"#" {COIN}{self['baseProbability']}"
-            ]
-        col = self.titleCol()
-        return "\n".join(f"\033[{col}m{i}\033[39m" for i in tit)
-    def titleCol(self):
-        if self['count'] == 0:
-            return "90"
-        if self.probability >= 70:
-            return "92"
-        if self.probability >= 40:
-            return "93"
-        return "91"
+    def __str__(self): return self['name'].capitalize()
     def desc(self):
-        if self['count'] == 0:
+        if self.soldout:
             return "Sold out\n\n"+\
                 f"{self['description'].capitalize()}"
         return f"{self['name'].capitalize()} ({self['category']})\n"+\
@@ -109,7 +125,7 @@ def iterSidebar(sidebar: str, max_width):
 def print_screen(shop, sel, sidebar):
     print("\033[2J\033[0;0H", end="")
     size = shutil.get_terminal_size()
-    strs = [i.title().split("\n") for i in shop]
+    strs = [i.title.split("\n") for i in shop]
 
     itwids = [max(strlen(j) for j in i)+2 for i in strs]
     mostwid = max(itwids)
@@ -162,13 +178,14 @@ def print_screen(shop, sel, sidebar):
             print(next(sbiter), end="")
             for idx, c in enumerate(cols):
                 hl = "7" if i*colamnt+idx == sel else "0"
+                prefix = f"\033[{hl}m"
                 if len(c) <= i or len(c[i]) <= j:
-                    print(f"│\033[{hl}m"+" "*colwids[idx], end='\033[0m')
+                    print("│"+prefix+" "*colwids[idx], end='\033[0m')
                 else:
                     txt = c[i][j]
                     spaces = colwids[idx] - strlen(txt)
                     prevspaces = math.floor(spaces/2)
-                    print(f"│\033[{hl}m"+" "*prevspaces+txt+" "*(spaces-prevspaces), end='\033[0m')
+                    print("│"+prefix+" "*prevspaces+txt+"\033[0m"+prefix+" "*(spaces-prevspaces), end='\033[0m')
             print("│")
 
         if i < end-1:
