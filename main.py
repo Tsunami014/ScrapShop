@@ -18,15 +18,24 @@ def strlen(txt):
 
 class Item:
     def __init__(self, dat):
-        self.data = dat
-        self.got = 0
-        self.want = [0, 0]
-        self.score = 0
-        self.title = self.make_title()
+        self.name = dat['name'].capitalize()
+        self._desc = dat['description'].capitalize()
+        self.heart = dat['heartCount']
+        self.category = dat['category']
+        self.count = dat['count']
+        self.upgrCost = dat['nextUpgradeCost']
+        self.upgrProb = dat['boostAmount']
 
-    def make_title(self):
+        self.data = dat
+        self.title() # Also updates self.score
+
+        self.upgrades = 0
+        self.want = False
+
+    def title(self):
         if self.soldout:
-            return f"\033[90m{self['name'].capitalize()}\n\033[90mSold out"
+            self.score = 0
+            return f"\033[90m{self.name}\n\033[90mSold out"
 
         # cols - 0 good, 1 warn, 2 bad
         def convColour(col):
@@ -34,52 +43,55 @@ class Item:
                 "92" if col < 1 else \
                 "93" if col < 2 else \
                 "91"
-        count = self['count']
-        countnorm = max((20-count)/5, 0)
-        prob = self.probability
-        probnorm = (100-prob)/30
-        heart = self['heartCount']
-        heartnorm = heart/7
-        coin = self.cost
-        coinnorm = coin/12
-        allcols = [countnorm, probnorm, heartnorm, coinnorm]
+        countnorm = max((20-self.count)/5, 0)
+        probnorm = (100-self.probability)/30
+        heartnorm = self.heart/7
+        costnorm = self.cost/12
+        upgrprobnorm = (20-self.upgrProb)/7
+        upgrcostnorm = self.upgrCost/6
+        allcols = [countnorm, probnorm, heartnorm, costnorm, upgrprobnorm, upgrcostnorm]
         self.score = sum(min(i, 3) for i in allcols)/len(allcols) - 0.3
         return (
-            f"\033[{convColour(self.score)}m{self['name'].capitalize()} "
-            f"\033[1;{convColour(countnorm)}mx{count}\n"
+            f"\033[{convColour(self.score)}m{self.name}"
+            "\033[39m "
+            f"\033[1;{convColour(countnorm)}mx{self.count}\n"
 
-            f"\033[1;{convColour(probnorm)}m{prob}% "
-            f"\033[1;{convColour(heartnorm)}m{heart}♥ "
-            f"\033[1;{convColour(coinnorm)}m{COIN}{coin}"
+            f"\033[1;{convColour(probnorm)}m{self.probability}%"
+            "\033[39m "
+            f"\033[1;{convColour(heartnorm)}m{self.heart}♥"
+            "\033[39m "
+            f"\033[1;{convColour(costnorm)}m{COIN}{self.cost}"
+            "\033[39m(↑"
+                f"\033[1;{convColour(upgrprobnorm)}m{self.upgrProb}% "
+                f"\033[1;{convColour(upgrcostnorm)}m{COIN}{self.upgrCost}"
+            "\033[39m)"
         )
-
-    def __getitem__(self, it):
-        return self.data[it]
 
     @property
     def probability(self):
-        return self['effectiveProbability']
+        return self.data['effectiveProbability']
     @property
     def cost(self):
-        return max(1, round(self['price'] * (self['baseProbability'] / 100)))
+        return max(1, round(self.data['price'] * (self.data['baseProbability'] / 100)))
     @property
     def soldout(self):
-        return self['count'] == 0
+        return self.count == 0
 
     def sort(self):
         return (self.soldout, self.score, -self.probability)
 
-    def __repr__(self): return str(self)
-    def __str__(self): return self['name'].capitalize()
+    def __repr__(self): return self.name
+    def __str__(self): return self.name
+
     def desc(self):
         if self.soldout:
             return "Sold out\n\n"+\
-                f"{self['description'].capitalize()}"
-        return f"{self['name'].capitalize()} ({self['category']})\n"+\
-            f"Only {self['count']} left, {self['heartCount']} ppl hearted\n"+\
-            f"Next upgrade: {COIN}{self['nextUpgradeCost']} (+{self['boostAmount']}%)\n"+\
+                f"{self._desc}"
+        return f"{self.name} ({self.category})\n"+\
+            f"Only {self.count} left, {self.heart} ppl hearted\n"+\
+            f"Next upgrade: {COIN}{self.upgrCost} (+{self.upgrProb}%)\n"+\
             "\n"+\
-            f"{self['description'].capitalize()}"
+            f"{self._desc}"
 
 
 def get_shop():
@@ -125,7 +137,7 @@ def iterSidebar(sidebar: str, max_width):
 def print_screen(shop, sel, sidebar):
     print("\033[2J\033[0;0H", end="")
     size = shutil.get_terminal_size()
-    strs = [i.title.split("\n") for i in shop]
+    strs = [i.title().split("\n") for i in shop]
 
     itwids = [max(strlen(j) for j in i)+2 for i in strs]
     mostwid = max(itwids)
