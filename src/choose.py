@@ -1,33 +1,14 @@
 from . import inp, SHOP
 from .shop import strlen
+from .utils import itertxt
 import shutil
 import math
 
 SIDEBAR_WIDTH = 1/3 # Ratio for the sidebar width compared to the screen width
 
-def iterSidebar(sidebar: str, max_width):
-    mxwid = max_width-2
-    i = 0
-    ln = len(sidebar)
-    while i < ln:
-        end = sidebar.find("\n", i, i+mxwid)
-        found = end != -1
-        if not found:
-            if i+mxwid >= ln:
-                end = ln
-            else:
-                end = sidebar.rfind(" ", i, i+mxwid)
-                found = end != -1
-                if not found:
-                    end = i+mxwid
-        yield " \033[100m"+sidebar[i:end].ljust(mxwid)+"\033[0m "
-        if found:
-            i = end+1
-        else:
-            i = end
-    spaces = " \033[100m" + " "*mxwid + "\033[0m "
-    while True:
-        yield spaces
+def iterSidebar(sidebar, max_width):
+    for t in itertxt(sidebar, max_width-2):
+        yield " \033[100m"+t+"\033[0m "
 
 def print_screen(sel, sidebar):
     print("\033[2J\033[0;0H", end="")
@@ -126,8 +107,9 @@ def print_screen(sel, sidebar):
 
     return colamnt
 
+item = 0
 def choose():
-    item = 0
+    global item
     while True:
         it = SHOP[item]
         if it.want:

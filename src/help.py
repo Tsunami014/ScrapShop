@@ -7,8 +7,9 @@ def get_help():
 \033[1mScrapShop\033[0m
   1 - go to help
   2 - go to choose items
+  3 - go to see odds
   ctrl+c - quit
 See readme for further usage instructions
-"""[1:-1])
+"""[1:-1], end='\033[0;0H', flush=True)
         if inp.read() is None:
             return
