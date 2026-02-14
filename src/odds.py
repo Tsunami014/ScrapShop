@@ -59,7 +59,7 @@ def get_desc(it, wants):
 def get_screen(sel):
     wants = [i for i in SHOP if i.want]
     if len(wants) == 0:
-        return "Nothing wanted!", ""
+        return "Nothing selected!", ""
     return "\n".join(
             ("\033[7;1m" if idx == sel else "")+get_title(i)+"\033[27m" for idx, i in enumerate(wants)
         ), get_desc(wants[sel], wants)

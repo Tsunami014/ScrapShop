@@ -1,4 +1,5 @@
 from . import inp
+from .shop import COIN
 import shutil
 
 HELP = """
@@ -12,10 +13,19 @@ HELP = """
   0 - go to help
   ctrl+c - quit
 
+\033[95;1mIcons\033[0m
+  x - amount left
+  ↑ or + - Upgrades
+  % - Percent chance of getting the item
+  {COIN} - Scraps
+  hr - Amount of hours required for an average (tier 2) project, based on scraps requirement
+  ♥ - Amount of people who've hearted the item
+
 \033[95;1mChoose items screen\033[0m (1)
+Each item section is coloured green/orange/red where red are harder to get due to the requirements (e.g. not many left, many people wanting it)
   Arrow keys to look at different items
-  Space to toggle 'wanting'
-  Backspace to get rid of all wanting
+  Space to toggle item selection
+  Backspace to unselect everything
 
 \033[95;1mOdds screen\033[0m (2)
   Up/down arrow keys to change selection

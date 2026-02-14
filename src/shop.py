@@ -3,7 +3,7 @@ import json
 import math
 import os
 
-CACHE = "cache.json" # str file path or None
+CACHE = None#"cache.json" # str file path or None
 COIN = "⧖"
 
 φ = (1 + math.sqrt(5)) / 2
@@ -41,14 +41,14 @@ class Item:
                 "92" if col < 1 else \
                 "93" if col < 2 else \
                 "91"
-        countnorm = max((20-self.count)/5, 0)
+        countnorm = (20-self.count)/5
         probnorm = (100-self.probability)/30
         heartnorm = self.heart/7
-        costnorm = self.cost/12
+        costnorm = self.cost/20
         upgrprobnorm = (20-self.upgrProb)/7
         upgrcostnorm = self.upgrCost/6
         allcols = [countnorm, probnorm, heartnorm, costnorm, upgrprobnorm, upgrcostnorm]
-        self.score = sum(min(i, 3) for i in allcols)/len(allcols) - 0.3
+        self.score = sum(max(min(i, 3), -1) for i in allcols)/len(allcols) - 0.3
         return (
             f"\033[{convColour(self.score)}m{self.name}"
             "\033[39m "
@@ -59,10 +59,7 @@ class Item:
             f"\033[1;{convColour(heartnorm)}m{self.heart}♥"
             "\033[39m "
             f"\033[1;{convColour(costnorm)}m{COIN}{self.cost}"
-            "\033[39m(↑"
-                f"\033[1;{convColour(upgrprobnorm)}m{self.upgrProb}% "
-                f"\033[1;{convColour(upgrcostnorm)}m{COIN}{self.upgrCost}"
-            "\033[39m)"
+                f" ({self.hours}hr)"
         )
 
     @property
