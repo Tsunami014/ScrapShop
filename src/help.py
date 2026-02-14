@@ -18,6 +18,8 @@ HELP = """
 
 \033[95;1mOdds screen\033[0m (2)
   Up/down arrow keys to change selection
+  = to +1 upgrade, - to -1 upgrade
+  + to set to full upgrades, _ to set to no upgrades
 """[1:-1].split("\n")
 _helpLn = len(HELP)
 

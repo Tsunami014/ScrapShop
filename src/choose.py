@@ -19,8 +19,8 @@ def print_screen(sel, sidebar):
     sbwidth = round(size.columns * SIDEBAR_WIDTH)
     colamnt = math.floor((size.columns-1-sbwidth) / mostwid)
     if colamnt <= 0:
-        print("Screen too small")
-        return 1
+        sbwidth = 0
+        colamnt = math.floor((size.columns-1) / mostwid)
     cols = [
         [] for _ in range(colamnt)
     ]
@@ -120,7 +120,7 @@ def choose():
         k = inp.read()
         if k is None:
             return
-        if k == " ":
+        if k == " " and not it.soldout:
             it.want = not it.want
         if k == inp.key.UP:
             item -= cols

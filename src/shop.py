@@ -12,6 +12,8 @@ class Item:
         self.heart = dat['heartCount']
         self.category = dat['category']
         self.count = dat['count']
+        self.probability = dat['effectiveProbability']
+        self.cost = max(1, round(dat['price'] * (dat['baseProbability'] / 100)))
         self.upgrCost = dat['nextUpgradeCost']
         self.upgrProb = dat['boostAmount']
 
@@ -57,11 +59,12 @@ class Item:
         )
 
     @property
-    def probability(self):
-        return self.data['effectiveProbability']
+    def upgradedCost(self):
+        return self.cost + self.upgrCost * self.upgrades
     @property
-    def cost(self):
-        return max(1, round(self.data['price'] * (self.data['baseProbability'] / 100)))
+    def upgradedProb(self):
+        return min(self.probability + self.upgrProb * self.upgrades, 100)
+
     @property
     def soldout(self):
         return self.count == 0
