@@ -17,6 +17,7 @@ HELP = """
   Space to toggle 'wanting'
 
 \033[95;1mOdds screen\033[0m (2)
+  Up/down arrow keys to change selection
 """[1:-1].split("\n")
 _helpLn = len(HELP)
 
