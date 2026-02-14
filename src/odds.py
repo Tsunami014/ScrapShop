@@ -61,11 +61,11 @@ def get_screen(sel):
     if len(wants) == 0:
         return "Nothing selected!", ""
     return "\n".join(
-            ("\033[7;1m" if idx == sel else "")+get_title(i)+"\033[27m" for idx, i in enumerate(wants)
+            "\033[31"+(";7;1" if idx == sel else "")+"m"+get_title(i) for idx, i in enumerate(wants)
         ), get_desc(wants[sel], wants)
 
 def print_screen(sel):
-    print("\033[2J\033[0;0H")
+    print("\033[0;0H\033[2K")
     size = shutil.get_terminal_size()
     wid = math.floor(size.columns/2)
     gap = "\033[0m"+" "*(size.columns%2)
@@ -80,7 +80,7 @@ def print_screen(sel):
     end = prt()
     for _ in range(size.lines-4):
         print(prt())
-    print(end, end='\033[0;0H', flush=True)
+    print(end+"\n\033[2K", end='\033[0;0H', flush=True)
 
 sel = 0
 def see_odds():

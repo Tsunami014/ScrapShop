@@ -11,7 +11,7 @@ def iterSidebar(sidebar, max_width):
         yield " \033[100m"+t+"\033[0m "
 
 def print_screen(sel, sidebar):
-    print("\033[2J\033[0;0H", end="")
+    print("\033[0;0H", end="")
     size = shutil.get_terminal_size()
     strs = [i.title().split("\n") for i in SHOP]
 
@@ -90,7 +90,7 @@ def print_screen(sel, sidebar):
                 print("─"*cw+"┼", end='')
             print("─"*colwids[-1]+"┤")
 
-    moreRows = mxhei - rowhei
+    moreRows = mxhei - rowhei + 1
     if moreRows < 0:
         print(sbspaces, end='')
     else:
@@ -102,14 +102,14 @@ def print_screen(sel, sidebar):
     print("─"*colwids[-1]+"╯", end="")
 
     for _ in range(moreRows):
-        print("\n"+next(sbiter), end="")
+        print("\n"+next(sbiter), end="\033[2K")
     print(end='\033[0;0H', flush=True)
 
     return colamnt
 
 def desc(it):
     if it.soldout:
-        return "Sold out\n\n{it._desc}"
+        return "Sold out\n\n"+it._desc
     return (
         f"\033[95;1m{it.name}\033[22;96m ({it.category})\n"
         f"\033[93m{it.count} left, {it.heart}♥\n"
