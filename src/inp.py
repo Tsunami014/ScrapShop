@@ -9,15 +9,15 @@ def read():
     except (KeyboardInterrupt, EOFError):
         nxt = None
         return None
-    if k == '1':
+    if k == '0':
         from .help import get_help
         nxt = get_help
         return
-    if k == '2':
+    if k == '1':
         from .choose import choose
         nxt = choose
         return
-    if k == '3':
+    if k == '2':
         from .odds import see_odds
         nxt = see_odds
         return
