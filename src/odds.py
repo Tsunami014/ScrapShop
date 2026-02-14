@@ -15,21 +15,45 @@ def iterSide(sidebar, max_width):
         yield " \033[100m "+t+" \033[0m "
 
 def get_title(it):
-    return f"{it.name}  \033[95m↑{it.upgrades}  \033[93m{it.upgradedProb}%(+{it.upgrProb}%) \033[96m {COIN}{it.upgradedCost}(+{COIN}{it.upgrCost})"
+    return (
+        f"{it.name}  "
+        f"\033[95m↑{it.upgrades}  "
+        f"\033[93m{it.upgradedProb}%(+{it.upgrProb}%) "
+        f"\033[96m {COIN}{it.upgradedCost}(+{COIN}{it.upgrCost}) "
+        f"\033[92m {it.upgradedHours}hr(+{it.upgrHours}hr)"
+    )
 
 def get_desc(it, wants):
     totBaseCost = sum(i.cost for i in wants)
     totBaseProb = combine_probs(i.probability for i in wants)
+    totBaseHrs = sum(i.hours for i in wants)
     totCost = sum(i.upgradedCost for i in wants)
     totProb = combine_probs(i.upgradedProb for i in wants)
+    totHrs = round(sum(i.upgradedHours for i in wants), 2)
     return (
-        f"\033[1;95mTotal:\n"
-        f"\033[92mBase: \033[93m{totBaseProb}% \033[96m {COIN}{totBaseCost}\n"
-        f"\033[92mUpgraded stats: \033[93m{totProb}% \033[96m {COIN}{totCost}\n"
-        f"\033[1;95m{it.name}:\n"
-        f"\033[92mBase: \033[93m{it.probability}% \033[96m {COIN}{it.cost}\n"
-        f"\033[92mTo upgrade: \033[93m+{it.upgrProb}% \033[96m +{COIN}{it.upgrCost}\n"
-        f"\033[92mWith {it.upgrades} upgrades: \033[93m{it.upgradedProb}% \033[96m {COIN}{it.upgradedCost}\n"
+        f"\033[1;97mTotal:\n"
+        f"\033[95mBase: "
+            f"\033[93m{totBaseProb}% "
+            f"\033[96m {COIN}{totBaseCost} "
+            f"\033[92m {totBaseHrs}hr\n"
+        f"\033[95mUpgraded stats: "
+            f"\033[93m{totProb}% "
+            f"\033[96m {COIN}{totCost} "
+            f"\033[92m {totHrs}hr\n"
+
+        f"\033[1;97m{it.name}:\n"
+        f"\033[95mBase: "
+            f"\033[93m{it.probability}% "
+            f"\033[96m {COIN}{it.cost} "
+            f"\033[92m {it.hours}hr\n"
+        f"\033[95mTo upgrade: "
+            f"\033[93m+{it.upgrProb}% "
+            f"\033[96m +{COIN}{it.upgrCost} "
+            f"\033[92m +{it.upgrHours}hr\n"
+        f"\033[95mWith {it.upgrades} upgrades: "
+            f"\033[93m{it.upgradedProb}% "
+            f"\033[96m {COIN}{it.upgradedCost} "
+            f"\033[92m {it.upgradedHours}hr\n"
     )
 
 def get_screen(sel):

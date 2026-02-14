@@ -111,17 +111,15 @@ def choose():
     global item
     while True:
         it = SHOP[item]
-        if it.want:
-            wants = [i for i in SHOP if i.want]
-            desc = f"Wanting {len(wants)} items:\n" + "\n".join("- "+i.name for i in wants)
-        else:
-            desc = it.desc()
-        cols = print_screen(item, desc)
+        cols = print_screen(item, it.desc())
         k = inp.read()
         if k is None:
             return
         if k == " " and not it.soldout:
             it.want = not it.want
+        if k == inp.key.BACKSPACE:
+            for i in SHOP:
+                i.want = False
         if k == inp.key.UP:
             item -= cols
         if k == inp.key.DOWN:

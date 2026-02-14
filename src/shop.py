@@ -1,9 +1,16 @@
 import requests
 import json
+import math
 import os
 
 CACHE = "cache.json" # str file path or None
 COIN = "⧖"
+
+φ = (1 + math.sqrt(5)) / 2
+# 1.0 is the tier modifier for 'average' (tier 2)
+TIER_MODIF = 1.0
+def coins2Hours(coin):
+    return round(coin / (φ * 10 * TIER_MODIF), 2)
 
 class Item:
     def __init__(self, dat):
@@ -64,6 +71,16 @@ class Item:
     @property
     def upgradedProb(self):
         return min(self.probability + self.upgrProb * self.upgrades, 100)
+
+    @property
+    def hours(self):
+        return coins2Hours(self.cost)
+    @property
+    def upgrHours(self):
+        return coins2Hours(self.upgrCost)
+    @property
+    def upgradedHours(self):
+        return coins2Hours(self.upgradedCost)
 
     @property
     def soldout(self):
