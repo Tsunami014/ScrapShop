@@ -1,5 +1,6 @@
 from . import inp, SHOP
 from .utils import itertxt, strlen
+from .shop import COIN
 import shutil
 import math
 
@@ -106,12 +107,22 @@ def print_screen(sel, sidebar):
 
     return colamnt
 
+def desc(it):
+    if it.soldout:
+        return "Sold out\n\n{it._desc}"
+    return (
+        f"\033[95;1m{it.name}\033[22;96m ({it.category})\n"
+        f"\033[93m{it.count} left, {it.heart}♥\n"
+        f"\033[93mEach upgrade: +{it.upgrProb}%, +{COIN}{it.upgrCost} (+{it.upgrHours}hr)\n"
+        "\n"+it._desc
+    )
+
 item = 0
 def choose():
     global item
     while True:
         it = SHOP[item]
-        cols = print_screen(item, it.desc())
+        cols = print_screen(item, desc(it))
         k = inp.read()
         if k is None:
             return

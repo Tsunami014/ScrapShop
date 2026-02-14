@@ -89,16 +89,6 @@ class Item:
     def __repr__(self): return self.name
     def __str__(self): return self.name
 
-    def desc(self):
-        if self.soldout:
-            return "Sold out\n\n"+\
-                f"{self._desc}"
-        return f"\033[93;1m{self.name}\033[22;93m ({self.category})\n"+\
-            f"\033[91mOnly {self.count} left, {self.heart} ppl hearted\n"+\
-            f"\033[91mNext upgrade: {COIN}{self.upgrCost} (+{self.upgrProb}%)\n"+\
-            "\n"+\
-            f"{self._desc}"
-
 
 def get_shop():
     print("Loading the shop...")
