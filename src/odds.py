@@ -1,6 +1,6 @@
 from . import inp, SHOP
 from .utils import itertxt
-from .shop import COIN, coins2Hours
+from .shop import COIN
 import shutil
 import math
 
@@ -28,10 +28,9 @@ def get_desc(it, wants):
     totBaseCost = sum(i.cost for i in wants)
     totBaseProb = combine_probs(i.probability for i in wants)
     totBaseHrs = round(sum(i.hours for i in wants), 2)
-    mxcost = max(wants, key=lambda i: i.upgradedCost)
-    totCost = totBaseCost + mxcost.upgradedCost-mxcost.cost
+    totCost = sum(i.upgradedCost for i in wants)
     totProb = combine_probs(i.upgradedProb for i in wants)
-    totHrs = round(coins2Hours(totCost), 2)
+    totHrs = round(sum(i.upgradedHours for i in wants), 2)
     return (
         f"\033[1;97mTotal:\n"
         f"\033[95mBase: "
