@@ -14,21 +14,23 @@ def coins2Hours(coin):
 
 class Item:
     def __init__(self, dat):
+        self.data = dat
+
         self.name = dat['name'].capitalize()
         self._desc = dat['description'].capitalize()
         self.heart = dat['heartCount']
         self.category = dat['category']
         self.count = dat['count']
-        self.probability = dat['effectiveProbability']
+        self.baseprobability = dat['effectiveProbability']
         self.cost = max(1, round(dat['price'] * (dat['baseProbability'] / 100)))
         self.upgrCost = dat['nextUpgradeCost']
         self.upgrProb = dat['boostAmount']
 
-        self.data = dat
-        self.title() # Also updates self.score
-
         self.upgrades = 0
+        self.bought = 0
         self.want = False
+
+        self.title() # Also updates self.score
 
     def title(self):
         if self.soldout:
@@ -52,6 +54,7 @@ class Item:
         return (
             f"\033[{convColour(self.score)}m{self.name}"
             "\033[39m "
+            f"\033[1m{self.bought}✓ "
             f"\033[1;{convColour(countnorm)}mx{self.count}\n"
 
             f"\033[1;{convColour(probnorm)}m{self.probability}%"
@@ -61,6 +64,10 @@ class Item:
             f"\033[1;{convColour(costnorm)}m{COIN}{self.cost}"
                 f" ({self.hours}hr)"
         )
+
+    @property
+    def probability(self):
+        return round(self.baseprobability / pow(2, self.bought))
 
     @property
     def upgradedCost(self):

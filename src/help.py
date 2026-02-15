@@ -15,6 +15,7 @@ HELP = """
   ctrl+c - quit
 
 \033[95;1mIcons\033[0m
+  ✓ - Amount bought
   x - Amount left
   ↑ or + - Upgrades
   % - Percent chance of getting the item
@@ -27,11 +28,15 @@ Each item section is coloured green/orange/red where red are harder to get due t
   Arrow keys to look at different items
   Space to toggle item selection
   Backspace to unselect everything
+  b to add 1 to the current item's bought count (how many times you've bought it)
+  B to remove 1 from that counter
 
 \033[95;1mOdds screen\033[0m (2)
   Up/down arrow keys to change selection
   = to +1 upgrade, - to -1 upgrade
   + to set to full upgrades, _ to set to no upgrades
+  b to add 1 to the current item's bought count
+  B to remove 1 from that counter
 """[1:-1].replace("{COIN}", COIN)
 def _get_help_newlines():
     li = []

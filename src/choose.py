@@ -112,7 +112,7 @@ def desc(it):
         return "Sold out\n\n"+it._desc
     return (
         f"\033[95;1m{it.name}\033[22;96m ({it.category})\n"
-        f"\033[93m{it.count} left, {it.heart}♥\n"
+        f"\033[93m{it.count} left, {it.bought} bought, {it.heart} hearts\n"
         f"\033[93mEach upgrade: +{it.upgrProb}%, +{COIN}{it.upgrCost} (+{it.upgrHours}hr)\n"
         "\n"+it._desc
     )
@@ -131,6 +131,10 @@ def choose():
         if k == inp.key.BACKSPACE:
             for i in SHOP:
                 i.want = False
+        if k == "b":
+            it.bought += 1
+        if k == "B" and it.bought > 0:
+            it.bought -= 1
         if k == inp.key.UP:
             item -= cols
         if k == inp.key.DOWN:
